@@ -21,13 +21,14 @@ public:
     static constexpr std::size_t KEY_BYTES_COUNT = static_cast<std::size_t>(type) / 8U;
     static constexpr std::size_t KEY_WORDS_COUNT = KEY_BYTES_COUNT / 4U;
     using KeyType = std::span<uint8_t, KEY_BYTES_COUNT>;
-    using State = std::array<std::array<std::uint8_t, 4U>, 4U>;
-    
+    using State = std::array<uint32_t, 4U>;
+     
     std::array<std::uint8_t, 16U> Enrypt(std::span<uint8_t, 16U> data, KeyType key)
     {
         auto roundKeys = CreateRoundKeys(key);
         auto state = CreateState(data);
 
+        state = AddRoundKey(state, std::span<uint32_t, 4U>(roundKeys[0U], 4U));
         state = SubBytes(state);
         
         return CreateOutputArray(state);
@@ -70,7 +71,7 @@ public:
         return output;
     }
 
-    static constexpr size_t CALCULATE_NUM_OF_ROUND()
+    static consteval size_t CALCULATE_NUM_OF_ROUND()
     {
         switch(type)
         {
@@ -84,7 +85,7 @@ public:
     }
     static constexpr size_t NUM_OF_ROUNDS = CALCULATE_NUM_OF_ROUND();
 
-    static constexpr std::array<std::uint32_t, NUM_OF_ROUNDS> CALCULATE_R_CON()
+    static consteval std::array<std::uint32_t, NUM_OF_ROUNDS> CALCULATE_R_CON()
     {
         std::array<std::uint32_t, NUM_OF_ROUNDS> roundConstants{};
         roundConstants[0U] = 1U  << 24;
@@ -102,8 +103,8 @@ public:
 
         return roundConstants;
     }
-
     static constexpr std::array<std::uint32_t, NUM_OF_ROUNDS> R_CON = CALCULATE_R_CON();
+    
     using ExpandedKeyType = std::array<std::uint32_t, 4U * (NUM_OF_ROUNDS + 1U)>;
     
     ExpandedKeyType CreateRoundKeys(KeyType key)
@@ -150,14 +151,17 @@ public:
 
     State& AddRoundKey(State& state, std::span<std::uint32_t, 4U> roundKey)
     {
-        (void)(roundKey);
+        std::ranges::transform(state, roundKey, [](uint32_t& stateWord, uint32_t& key){
+            stateWord ^= key;
+        });
+
         return state;
     }
 
     State& SubBytes(State& state) 
     {
-        std::ranges::for_each(state, [](uint8_t& byte){
-            byte = S_box[byte];
+        std::ranges::for_each(state, [](uint32_t& word){
+            word = SubWord(word);
         });
     
         return state;
