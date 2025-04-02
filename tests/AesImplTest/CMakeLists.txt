@@ -1,3 +1,5 @@
+project(GCryptonAesImplTests)
+
 find_package(Catch2 3 REQUIRED)
 
 # Add test executable

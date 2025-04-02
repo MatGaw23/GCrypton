@@ -15,7 +15,8 @@ option(BUILD_TESTS "Build the tests" ON)
 option(BUILD_SHARED_LIBS "Build shared libraries" OFF)
 
 # Add source code
-add_subdirectory(src)
+add_subdirectory(App)
+add_subdirectory(Components)
 
 # Testing
 if(BUILD_TESTS)
@@ -23,19 +24,19 @@ if(BUILD_TESTS)
     add_subdirectory(tests)
 endif()
 
-# Installation rules
-install(TARGETS GCrypton
-        EXPORT GCryptonTargets
-        LIBRARY DESTINATION lib
-        ARCHIVE DESTINATION lib
-        RUNTIME DESTINATION bin
-        INCLUDES DESTINATION include)
+# # Installation rules
+# install(TARGETS GCrypton
+#         EXPORT GCryptonTargets
+#         LIBRARY DESTINATION lib
+#         ARCHIVE DESTINATION lib
+#         RUNTIME DESTINATION bin
+#         INCLUDES DESTINATION include)
 
-install(DIRECTORY src/GCrypton/include/
-        DESTINATION include)
+# install(DIRECTORY src/GCrypton/include/
+#         DESTINATION include)
 
-# Generate and install export targets
-install(EXPORT GCryptonTargets
-        FILE GCryptonTargets.cmake
-        NAMESPACE GCrypton::
-        DESTINATION lib/cmake/GCrypton)
+# # Generate and install export targets
+# install(EXPORT GCryptonTargets
+#         FILE GCryptonTargets.cmake
+#         NAMESPACE GCrypton::
+#         DESTINATION lib/cmake/GCrypton)

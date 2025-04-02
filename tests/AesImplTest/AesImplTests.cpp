@@ -278,3 +278,4 @@ TEST_CASE("Aes implementation - Key Expansion", "[AES_IMPL_KEY_EXPANSION]")
         REQUIRE(expandedKeys[59] == 0x706c631e);  
     }
 }
+
